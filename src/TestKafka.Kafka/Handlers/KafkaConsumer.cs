@@ -1,10 +1,14 @@
 ﻿using Confluent.Kafka;
+using Confluent.Kafka.SyncOverAsync;
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using TestKafka.Kafka.Configs;
 using TestKafka.Kafka.Deserializers;
+using TestKafka.Kafka.Extensions;
 using TestKafka.Kafka.Handlers.Interfaces;
 
 namespace TestKafka.Kafka.Handlers
@@ -14,17 +18,26 @@ namespace TestKafka.Kafka.Handlers
         where TValue : class
     {
         private readonly ILogger<KafkaConsumer<TKey, TValue>> _logger;
-        private readonly IConsumer<TKey, TValue> _consumer;
+        private IConsumer<TKey, TValue> _consumer;
         private readonly KafkaConsumerConfig _consumerOptions;
+        private readonly ISchemaRegistryClient _schemaRegistryClient;
 
         public KafkaConsumer(ILogger<KafkaConsumer<TKey, TValue>> logger,
                              IOptions<KafkaConsumerConfig> consumerOptions)
         {
             _logger = logger;
             _consumerOptions = consumerOptions.Value;
+            
+            var schemaRegistryConfig = new CachedSchemaRegistryClient(config: new SchemaRegistryConfig()
+            {
+                Url = "http://localhost:8081",
+                RequestTimeoutMs = 5000
+            });
 
-            _consumer = new ConsumerBuilder<TKey, TValue>(CreateConsumerConfig()).SetKeyDeserializer(new KeyDeserializer<TKey>())
-                                                                                 .SetValueDeserializer(new ValueDeserializer<TValue>())
+            _schemaRegistryClient = schemaRegistryConfig;
+
+            _consumer = new ConsumerBuilder<TKey, TValue>(CreateConsumerConfig()).SetDeserializers(_schemaRegistryClient)
+                                                                                 .SetErrorHandler((_, e) => _logger.LogError($"Error: {e.Reason}"))
                                                                                  .Build();
         }
 
@@ -39,6 +52,7 @@ namespace TestKafka.Kafka.Handlers
                     var consumerResponse = _consumer.Consume();
                     return consumerResponse.Message.Value;
                 });
+
             }
             catch(ConsumeException ce)
             {

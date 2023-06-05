@@ -2,8 +2,8 @@
 
 namespace TestKafka.Consumer.Services.Interfaces
 {
-    public interface IConsumerService
+    internal interface IConsumerService
     {
-        Task ConsumeMessageFromKafka();
+        Task ConsumeMessage();
     }
 }

@@ -1,19 +1,21 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using TestKafka.Producer.Services.Interfaces;
 
 namespace TestKafka.Producer
 {
+    [ExcludeFromCodeCoverage]
     internal class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly IProducerService _producerService;
+        private readonly IProducerAvroService _producerService;
 
         public Worker(ILogger<Worker> logger,
-                      IProducerService activeAccountService)
+                      IProducerAvroService activeAccountService)
         {
             _logger = logger;
             _producerService = activeAccountService;
@@ -26,7 +28,7 @@ namespace TestKafka.Producer
             {
                 _logger.LogInformation($"Worker now will try to send message at {DateTime.Now}...");
 
-                await _producerService.ProduceMessageToKafka();
+                await _producerService.ProduceMessage();
                 
                 await Task.Delay(1000);
             }
