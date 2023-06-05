@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TestKafka.Domain.Messages;
-using TestKafka.Domain.Messages.TestKafka;
 using TestKafka.Infrastructure.Configs;
 using TestKafka.Kafka.Builders;
 using TestKafka.Kafka.Configs;
@@ -28,15 +26,15 @@ namespace TestKafka.Infrastructure.DependencyInjection
 
         public static IServiceCollection AddMessageBuilders(this IServiceCollection services)
         {
-            services.AddScoped<IMessageBuilder<string, MessagePayload<TestKafkaData>>, MessageBuilder<string, MessagePayload<TestKafkaData>>>();
+            services.AddScoped(typeof(IMessageBuilder<,>), typeof(MessageBuilder<,>));
 
             return services;
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.AddScoped<IKafkaProducer<string, MessagePayload<TestKafkaData>>, KafkaProducer<string, MessagePayload<TestKafkaData>>>();
-            services.AddScoped<IKafkaConsumer<string, MessagePayload<TestKafkaData>>, KafkaConsumer<string, MessagePayload<TestKafkaData>>>();
+            services.AddScoped(typeof(IKafkaProducer<,>), typeof(KafkaProducer<,>));
+            services.AddScoped(typeof(IKafkaConsumer<,>), typeof(KafkaConsumer<,>));
 
             return services;            
         }

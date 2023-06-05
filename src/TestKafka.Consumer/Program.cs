@@ -23,8 +23,8 @@ namespace TestKafka.Consumer
                     var configuration = GetConfiguration();
                     services.AddSingleton<IConfiguration>(_ => configuration);
                     services.RegisterServices(hostContext.Configuration);
-                    services.AddScoped<IConsumerService, ConsumerService>();
-                    services.AddHostedService<Worker>();
+                    services.AddScoped<IConsumerAvroService, ConsumerAvroService>();
+                    services.AddHostedService<WorkerAvro>();
                 })
                 .ConfigureLogging(logging =>
                 {

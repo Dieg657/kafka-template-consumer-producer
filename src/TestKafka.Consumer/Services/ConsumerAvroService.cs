@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Test;
 using TestKafka.Consumer.Services.Interfaces;
 using TestKafka.Domain.Messages;
 using TestKafka.Domain.Messages.TestKafka;
@@ -10,14 +11,14 @@ using TestKafka.Kafka.Handlers.Interfaces;
 
 namespace TestKafka.Consumer.Services
 {
-    internal class ConsumerService : IConsumerService
+    internal class ConsumerAvroService : IConsumerAvroService
     {
-        private readonly ILogger<ConsumerService> _logger;
-        private readonly IKafkaConsumer<string, MessagePayload<TestKafkaData>> _consumer;
+        private readonly ILogger<ConsumerAvroService> _logger;
+        private readonly IKafkaConsumer<string, TestKafkaAvro> _consumer;
         private readonly TestKafkaTopicConfig _topicConfig;
 
-        public ConsumerService(ILogger<ConsumerService> logger, 
-                               IKafkaConsumer<string, MessagePayload<TestKafkaData>> consumer,
+        public ConsumerAvroService(ILogger<ConsumerAvroService> logger,
+                               IKafkaConsumer<string, TestKafkaAvro> consumer,
                                IOptions<TestKafkaTopicConfig> topicConfig)
         {
             _logger = logger;
@@ -25,14 +26,13 @@ namespace TestKafka.Consumer.Services
             _topicConfig = topicConfig.Value;
         }
 
-        public async Task ConsumeMessageFromKafka()
+        public async Task ConsumeMessage()
         {
             _logger.LogInformation($"Consuming message from topic: {_topicConfig.TopicName}...");
 
             var message = await _consumer.ConsumeFromTopic(_topicConfig.TopicName);
-            
-            _logger.LogInformation($"Message retrived: {JsonConvert.SerializeObject(message)}");
 
+            _logger.LogInformation($"Message retrived: {JsonConvert.SerializeObject(new {message.meta.infoData, message.data.publishedTime})}");
         }
     }
 }

@@ -1,0 +1,58 @@
+{
+  "name": "TestKafkaAvro",
+  "type": "record",
+  "namespace": "Test",
+  "fields": [
+    {
+      "name": "data",
+      "type": {
+        "name": "data",
+        "type": "record",
+        "fields": [
+          {
+            "name": "publishedTime",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meta",
+      "type": {
+        "name": "meta",
+        "type": "record",
+        "fields": [
+          {
+            "name": "infoData",
+            "type": {
+              "name": "infoData",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "name": "correlationId",
+                  "type": "string"
+                },
+                {
+                  "name": "domain",
+                  "type": "string"
+                },
+                {
+                  "name": "action",
+                  "type": "string"
+                },
+                {
+                  "name": "timestamp",
+                  "type": "int"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -7,12 +7,12 @@ using TestKafka.Consumer.Services.Interfaces;
 
 namespace TestKafka.Consumer
 {
-    internal class Worker : BackgroundService
+    internal class WorkerAvro : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
-        private readonly IConsumerService _consumeService;
+        private readonly ILogger<WorkerAvro> _logger;
+        private readonly IConsumerAvroService _consumeService;
 
-        public Worker(ILogger<Worker> logger, IConsumerService consumeService)
+        public WorkerAvro(ILogger<WorkerAvro> logger, IConsumerAvroService consumeService)
         {
             _logger = logger;
             _consumeService = consumeService;
@@ -25,7 +25,7 @@ namespace TestKafka.Consumer
             while(!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation($"Start consuming message at {DateTime.Now}...");
-                await _consumeService.ConsumeMessageFromKafka();
+                await _consumeService.ConsumeMessage();
             }
 
             _logger.LogInformation($"Consumer Worker stoppet at: {DateTime.Now}");

@@ -23,7 +23,7 @@ namespace TestKafka.Producer
                     var configuration = GetConfiguration();
                     services.AddSingleton<IConfiguration>(_ => configuration);
                     services.RegisterServices(hostContext.Configuration);
-                    services.AddScoped<IProducerService, ProducerService>();
+                    services.AddScoped<IProducerAvroService, ProducerAvroService>();
                     services.AddHostedService<Worker>();
                 })
                 .ConfigureLogging(logging =>

@@ -1,12 +1,14 @@
 ﻿using Confluent.Kafka;
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using TestKafka.Kafka.Builders;
 using TestKafka.Kafka.Configs;
+using TestKafka.Kafka.Extensions;
 using TestKafka.Kafka.Handlers.Interfaces;
-using TestKafka.Kafka.Serializers;
 
 namespace TestKafka.Kafka.Handlers
 {
@@ -23,12 +25,24 @@ namespace TestKafka.Kafka.Handlers
                              IMessageBuilder<TKey, TValue> messageBuilder,
                              IOptions<KafkaProducerConfig> producerOptions)
         {
+            var schemaRegistryConfig = new CachedSchemaRegistryClient(config: new SchemaRegistryConfig() 
+            {
+                Url = "http://localhost:8081",
+                RequestTimeoutMs = 5000,
+                BasicAuthUserInfo = String.Empty
+            });
+
+            var avroSerializerConfig = new AvroSerializerConfig
+            {
+                AutoRegisterSchemas = false,
+                BufferBytes = 1024
+            };
+
             _logger = logger;
             _messageBuilder = messageBuilder;
             _producerOptions = producerOptions.Value;
 
-            _producer = new ProducerBuilder<TKey, TValue>(CreateProducerConfig()).SetKeySerializer(new KeySerializer<TKey>())
-                                                                                 .SetValueSerializer(new ValueSerializer<TValue>())
+            _producer = new ProducerBuilder<TKey, TValue>(CreateProducerConfig()).SetSerializers(schemaRegistryConfig, avroSerializerConfig)
                                                                                  .Build();
         }
 
@@ -42,6 +56,7 @@ namespace TestKafka.Kafka.Handlers
             catch(Exception ex)
             {
                 _logger.LogError($"PublishToTopic: Error to send a message to topic: {topic} - {ex.Message}");
+                throw;
             }
             
         }
